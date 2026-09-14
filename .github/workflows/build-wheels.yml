@@ -421,10 +421,10 @@ jobs:
           docker exec "wheels-${{ matrix.kind }}-aux" python3 -c "import os; print(os.environ.get('BUILD_ARCH'))"
           echo "python3 -c import os; print('ARCH=', os.environ.get('ARCH')); print('BUILD_ARCH=', os.environ.get('BUILD_ARCH'))"
           docker exec "wheels-${{ matrix.kind }}-aux" python3 -c "import os; print('ARCH=', os.environ.get('ARCH')); print('BUILD_ARCH=', os.environ.get('BUILD_ARCH'))"
-          echo "auditwheel repair --help"
-          docker exec -e AUDITWHEEL_PLAT="" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
-          docker exec -e AUDITWHEEL_PLAT="musllinux_1_2_armv7l" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
-          docker exec -e AUDITWHEEL_PLAT="auto" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
+          # echo "auditwheel repair --help"
+          # docker exec -e AUDITWHEEL_PLAT="" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
+          # docker exec -e AUDITWHEEL_PLAT="musllinux_1_2_armv7l" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
+          # docker exec -e AUDITWHEEL_PLAT="auto" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
 
           echo "=== Aux konténer leállítása és törlése ==="
           docker stop "wheels-${{ matrix.kind }}-aux"
