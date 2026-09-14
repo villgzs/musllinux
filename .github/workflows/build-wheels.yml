@@ -603,27 +603,32 @@ jobs:
           echo "### Last build from https://github.com/home-assistant/core:(${{ needs.init.outputs.version }}): ($(date -u +'%Z %Y-%b-%d %T'))"
           echo "### Last build from https://github.com/home-assistant/core:(${{ needs.init.outputs.version }}): ($(date -u +'%Z %Y-%b-%d %T'))" > musllinux/README.md
           pwd
+          
+          echo "=== dist tartalma ==="
+          find ../dist -type f -name "*.whl" | head -20
+          echo "Wheel-ek száma: $(find ../dist -name '*.whl' | wc -l)"
+          
           # ----- Összes wheel másolása (armv7 + armhf) -----
-          cp -v ../dist/armv7/core/musllinux/*.whl          musllinux/ 2>/dev/null || true
-          cp -v ../dist/armv7/integrations/musllinux/*.whl  musllinux/ 2>/dev/null || true
-          cp -v ../dist/armhf/core/musllinux/*.whl          musllinux/ 2>/dev/null || true
-          cp -v ../dist/armhf/integrations/musllinux/*.whl  musllinux/ 2>/dev/null || true
+          cp -v ../dist/armv7/core/*.whl              musllinux/ 2>/dev/null || true
+          cp -v ../dist/armv7/integrations/*.whl      musllinux/ 2>/dev/null || true
+          cp -v ../dist/armhf/core/*.whl              musllinux/ 2>/dev/null || true
+          cp -v ../dist/armhf/integrations/*.whl      musllinux/ 2>/dev/null || true
   
           # README frissítése
           cat README > README.md
           echo -e "\n### Last build from https://github.com/home-assistant/core: ${{ needs.init.outputs.version }}  " | tee README.md
-          echo "#### Musllinux wheels (armv7l + armv6l) ($(date -u +'%Z %Y-%b-%d %T'))  " >> README.md
-          echo "-  [Web page](https://villgzs.github.io/wheels32bit)  "  >> README.md
-          echo "-  [musllinux git directory](https://github.com/villgzs/wheels32bit/tree/main/musllinux)  " >> README.md
-          echo "-  [musllinux on web page](https://villgzs.github.io/wheels32bit/musllinux)  " >> README.md
+          echo "#### Musllinux wheels (armv7l + armv6l) ($(date -u +'%Z %Y-%b-%d %T'))  " | tee README.md
+          echo "-  [Web page](https://villgzs.github.io/wheels32bit)  "  | tee README.md
+          echo "-  [musllinux git directory](https://github.com/villgzs/wheels32bit/tree/main/musllinux)  " | tee README.md
+          echo "-  [musllinux on web page](https://villgzs.github.io/wheels32bit/musllinux)  " | tee README.md
           echo "-  [musllinux-index on web page](https://villgzs.github.io/wheels32bit/musllinux-index)  " | tee README.md
           
           echo "  " >> README.md
           pwd
-          echo "  armv7/core: $(find ../dist/armv7/core/musllinux/ -maxdepth 1 -type f -name '*.whl' | wc -l)  " >> README.md
-          echo "  armv7/integrations: $(find ../dist/armv7/integrations/musllinux/ -maxdepth 1 -type f -name '*.whl' | wc -l)  " >> README.md
-          echo "  armhf/core: $(find ../dist/armhf/core/musllinux/ -maxdepth 1 -type f -name '*.whl' | wc -l)  " >> README.md
-          echo "  armhf/integrations: $(find ../dist/armhf/integrations/musllinux/ -maxdepth 1 -type f -name '*.whl' | wc -l)  " >> README.md
+          echo "  armv7/core: $(find ../dist/armv7/core -maxdepth 1 -type f -name '*.whl' 2>/dev/null | wc -l)  " | tee -a README.md
+          echo "  armv7/integrations: $(find ../dist/armv7/integrations -maxdepth 1 -type f -name '*.whl' 2>/dev/null | wc -l)  " | tee -a README.md
+          echo "  armhf/core: $(find ../dist/armhf/core -maxdepth 1 -type f -name '*.whl' 2>/dev/null | wc -l)  " | tee -a README.md
+          echo "  armhf/integrations: $(find ../dist/armhf/integrations -maxdepth 1 -type f -name '*.whl' 2>/dev/null | wc -l)  " | tee -a README.md
 
           for f in musllinux/*.whl; do
             if [ -f "$f" ]; then
