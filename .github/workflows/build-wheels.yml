@@ -291,7 +291,7 @@ jobs:
               echo 'CXXFLAGS=-march=armv6 -mfloat-abi=hard -mfpu=vfp'
               echo '_PYTHON_HOST_PLATFORM=linux-armv6l'
               echo 'BUILD_ARCH=armhf'
-              echo 'AUDITWHEEL_PLAT=musllinux_1_2_armhf'
+              echo 'AUDITWHEEL_PLAT=musllinux_1_2_armv7'
               echo 'ARCH=armhf'
             ) >> .env_file
             
@@ -422,9 +422,9 @@ jobs:
           echo "python3 -c import os; print('ARCH=', os.environ.get('ARCH')); print('BUILD_ARCH=', os.environ.get('BUILD_ARCH'))"
           docker exec "wheels-${{ matrix.kind }}-aux" python3 -c "import os; print('ARCH=', os.environ.get('ARCH')); print('BUILD_ARCH=', os.environ.get('BUILD_ARCH'))"
           echo "auditwheel repair --help"
-          docker exec -e AUDITWHEEL_PLAT= "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
-          docker exec -e AUDITWHEEL_PLAT=musllinux_1_2_armv7l "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
-          docker exec -e AUDITWHEEL_PLAT=auto "wheels-..." auditwheel repair --help
+          docker exec -e AUDITWHEEL_PLAT="" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
+          docker exec -e AUDITWHEEL_PLAT="musllinux_1_2_armv7l" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
+          docker exec -e AUDITWHEEL_PLAT="auto" "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
 
           echo "=== Aux konténer leállítása és törlése ==="
           docker stop "wheels-${{ matrix.kind }}-aux"
@@ -557,6 +557,11 @@ jobs:
           echo "- wheels-armv7-integrations-${{ needs.init.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- wheels-armhf-core-${{ needs.init.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- wheels-armhf-integrations-${{ needs.init.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.6'   # vagy '3.11', '3.13', '3.14' stb.
   
       - name: Publish wheels and update README
         env:
