@@ -636,7 +636,7 @@ jobs:
               filename=$(basename "$f")
               package="${filename%%-*}"
 
-                  echo "* [$filename]($filename)    " >> musllinux/README.md
+                  echo "* [$filename](./$filename)    " >> musllinux/README.md
             fi
           done
 
