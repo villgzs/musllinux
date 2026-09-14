@@ -291,7 +291,7 @@ jobs:
               echo 'CXXFLAGS=-march=armv6 -mfloat-abi=hard -mfpu=vfp'
               echo '_PYTHON_HOST_PLATFORM=linux-armv6l'
               echo 'BUILD_ARCH=armhf'
-              echo 'AUDITWHEEL_PLAT=musllinux_1_2_armv6l'
+              echo 'AUDITWHEEL_PLAT=musllinux_1_2_armhf'
               echo 'ARCH=armhf'
             ) >> .env_file
             
@@ -421,6 +421,8 @@ jobs:
           docker exec "wheels-${{ matrix.kind }}-aux" python3 -c "import os; print(os.environ.get('BUILD_ARCH'))"
           echo "python3 -c import os; print('ARCH=', os.environ.get('ARCH')); print('BUILD_ARCH=', os.environ.get('BUILD_ARCH'))"
           docker exec "wheels-${{ matrix.kind }}-aux" python3 -c "import os; print('ARCH=', os.environ.get('ARCH')); print('BUILD_ARCH=', os.environ.get('BUILD_ARCH'))"
+          echo "auditwheel repair --help"
+          docker exec "wheels-${{ matrix.kind }}-aux" auditwheel repair --help
 
           echo "=== Aux konténer leállítása és törlése ==="
           docker stop "wheels-${{ matrix.kind }}-aux"
