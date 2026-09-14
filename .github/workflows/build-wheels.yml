@@ -616,12 +616,12 @@ jobs:
   
           # README frissítése
           cat README > README.md
-          echo -e "\n### Last build from https://github.com/home-assistant/core: ${{ needs.init.outputs.version }}  " | tee README.md
-          echo "#### Musllinux wheels (armv7l + armv6l) ($(date -u +'%Z %Y-%b-%d %T'))  " | tee README.md
-          echo "-  [Web page](https://villgzs.github.io/wheels32bit)  "  | tee README.md
-          echo "-  [musllinux git directory](https://github.com/villgzs/wheels32bit/tree/main/musllinux)  " | tee README.md
-          echo "-  [musllinux on web page](https://villgzs.github.io/wheels32bit/musllinux)  " | tee README.md
-          echo "-  [musllinux-index on web page](https://villgzs.github.io/wheels32bit/musllinux-index)  " | tee README.md
+          echo -e "\n### Last build from https://github.com/home-assistant/core: ${{ needs.init.outputs.version }}  " | tee -a README.md
+          echo "#### Musllinux wheels (armv7l + armv6l) ($(date -u +'%Z %Y-%b-%d %T'))  " | tee -a README.md
+          echo "-  [Web page](https://villgzs.github.io/wheels32bit)  "  | tee -a README.md
+          echo "-  [musllinux git directory](https://github.com/villgzs/wheels32bit/tree/main/musllinux)  " | tee -a README.md
+          echo "-  [musllinux on web page](https://villgzs.github.io/wheels32bit/musllinux)  " | tee -a README.md
+          echo "-  [musllinux-index on web page](https://villgzs.github.io/wheels32bit/musllinux-index)  " | tee -a README.md
           
           echo "  " >> README.md
           pwd
@@ -630,15 +630,16 @@ jobs:
           echo "  armhf/core: $(find ../dist/armhf/core -maxdepth 1 -type f -name '*.whl' 2>/dev/null | wc -l)  " | tee -a README.md
           echo "  armhf/integrations: $(find ../dist/armhf/integrations -maxdepth 1 -type f -name '*.whl' 2>/dev/null | wc -l)  " | tee -a README.md
           echo "  Wheel-ek száma: $(find musllinux -name '*.whl' | wc -l)  " | tee -a README.md
-
+          echo " --------------------------------------------- "
           for f in musllinux/*.whl; do
             if [ -f "$f" ]; then
               filename=$(basename "$f")
               package="${filename%%-*}"
 
-                  echo "* [$filename](./$filename)    " >> musllinux/README.md
+                  echo "* [$filename](./$filename)    " | tee -a musllinux/README.md
             fi
           done
+          echo " --------------------------------------------- "
 
           rm -rf musllinux-index
           index-503 musllinux/
