@@ -559,6 +559,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+
+          python -m venv venv
+          . venv/bin/activate
+          python --version
+          
+          pip install index-503
   
           # git clone --depth 1 --branch main \
           #   https://x-access-token:${GH_TOKEN}@github.com/villgzs/wheels32bit.git index-repo
@@ -572,14 +578,17 @@ jobs:
 
           git clone --depth 1 --branch main --filter=blob:none --sparse \
             https://x-access-token:${GH_TOKEN}@github.com/villgzs/wheels32bit.git wheels32bit-repo
+            
           cd wheels32bit-repo
+          
           git sparse-checkout init --no-cone
           # git sparse-checkout set README 'musllinux/**/*.whl'
           git sparse-checkout set --no-cone \
             /README \
             /README.md \
             'musllinux/*.whl' \
-            'musllinux/*.md'
+            'musllinux/*.md' \
+            'musllinux-index/**'
             
           mkdir -p musllinux
           echo "### Last build from https://github.com/home-assistant/core:(${{ needs.init.outputs.version }}): ($(date -u +'%Z %Y-%b-%d %T'))" > musllinux/README.md
@@ -601,29 +610,38 @@ jobs:
           
           echo "  " >> README.md
 
+          echo "  armv7/core: $(find ../dist/armv7/core/musllinux/ -maxdepth 1 -type f -name '*.whl' | wc -l)  " >> README.md
+          echo "  armv7/integrations: $(find ../dist/armv7/integrations/musllinux/ -maxdepth 1 -type f -name '*.whl' | wc -l)  " >> README.md
+          echo "  armhf/core: $(find ../dist/armhf/core/musllinux/ -maxdepth 1 -type f -name '*.whl' | wc -l)  " >> README.md
+          echo "  armhf/integrations: $(find ../dist/armhf/integrations/musllinux/ -maxdepth 1 -type f -name '*.whl' | wc -l)  " >> README.md
+
           last_package=""
           for f in musllinux/*.whl; do
             if [ -f "$f" ]; then
               filename=$(basename "$f")
               package="${filename%%-*}"
               if [[ "$package" != "$last_package" ]]; then
-                  echo "* [$package](./$package)    " >> musllinux/README.md
+                  echo "* [$package](./$filename)    " >> musllinux/README.md
               else
                   echo "dupla package"
               fi
-              echo "* $package [$filename](./$f)"
-              echo "* [$package](./$f)    " >> README.md              
-              
+
               last_package="$package"
             fi
           done
-  
+
+          rm -rf musllinux-index
+          index-503 musllinux/
+
+          rm musllinux-index
+          mv musllinux-index-tmp* musllinux-index
+          
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           # Csak a 100 MiB-nél kisebb fájlokat adjuk hozzá
           find musllinux -type f -size -100M -print0 | xargs -0 git add
-          git add README.md
+          git add README.md musllinux-index
   
           # git add musllinux/ README.md
           if git diff --staged --quiet; then
