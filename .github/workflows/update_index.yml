@@ -1,0 +1,100 @@
+name: update-index - Publish musllinux wheels and update indexes
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish wheels and update indexes
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Publish wheels and update README
+        env:
+          TOKEN: ${{ secrets.PUSH_MUSLLINUX_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TOKEN:-}" ]; then
+            echo "HIBA: PUSH_MUSLLINUX_TOKEN secret hiányzik vagy üres!"
+            exit 1
+          fi
+          echo "Token hossza: ${#TOKEN} karakter"
+
+          git clone --depth 1 --branch main \
+            "https://x-access-token:${TOKEN}@github.com/villgzs/musllinux.git" musllinux-repo
+
+          pwd
+
+          echo "Wheel-ek száma a musllinux-repo mappában: $(find musllinux-repo -name '*.whl' | wc -l)"
+
+          echo " --------------------------------------------- "          
+
+          touch tobe_README.md
+
+          echo "# Wheels32bit - for ARMv7" | tee -a tobe_README.md
+          echo "## Musllinux wheels (armv7l) ($(date -u +'%Z %Y-%b-%d %T'))  " | tee -a tobe_README.md
+          echo "### Manual update from musllinux action" | tee -a tobe_README.md       
+          
+          echo "  "  | tee -a tobe_README.md
+                    
+          # -------------------------------------
+          # musllinux done
+          # -------------------------------------
+          
+          # -------------------------------------
+          # musllinux-index: új index publikálása
+          # -------------------------------------
+
+          mkdir -p musllinux-index-repo
+
+          python -m venv venv
+          . venv/bin/activate
+
+          python --version
+          pip install index-503
+
+          # Index létrehozása
+          index-503 musllinux-repo/
+
+          ls -las
+
+          cp -a musllinux-repo-index-tmp*/. musllinux-index-repo/
+          
+          cd musllinux-index-repo
+
+          git init -b main
+          
+          cp ../tobe_README.md ./README.md
+
+          # Git-identitás
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Teljesen új, előzmények nélküli ág
+          git add -A
+          git commit -m "Update musllinux index - MANUAL ACTION (armv7)"
+
+          # Távoli repository hozzáadása klónozás nélkül
+          git remote add origin \
+            "https://x-access-token:${TOKEN}@github.com/villgzs/musllinux-index.git"
+
+          # A main ág teljes lecserélése
+          git push origin main --force
+
+          cd ..
+          deactivate
+
+          echo "A musllinux-index frissítése befejeződött."
+
+          # -------------------------------------
+          # musllinux-index done
+          # -------------------------------------         
